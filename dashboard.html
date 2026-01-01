@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+</head>
+<body>
+<h1>Dashboard</h1>
+<button onclick="logout()">Logout</button>
+
+<h3>All Users</h3>
+<ul id="usersList"></ul>
+
+<h3>Update / Delete User</h3>
+<input type="text" id="targetUsername" placeholder="Target Username">
+<input type="text" id="newUsername" placeholder="New Username (for update)">
+<button onclick="updateUser()">Update</button>
+<button onclick="deleteUser()">Delete</button>
+
+<script>
+const API = "https://dash-app-backend.onrender.com"; // replace with your deployed backend
+const token = localStorage.getItem("token");
+if(!token) window.location.href="login_signup.html";
+
+function logout(){
+  localStorage.removeItem("token");
+  window.location.href="login_signup.html";
+}
+
+function fetchUsers(){
+  fetch(`${API}/users`,{headers:{Authorization:`Bearer ${token}`}})
+    .then(res=>res.json())
+    .then(data=>{
+      const ul = document.getElementById("usersList");
+      ul.innerHTML="";
+      data.forEach(u=>{
+        const li = document.createElement("li");
+        li.textContent = u.username;
+        ul.appendChild(li);
+      });
+    });
+}
+
+function updateUser(){
+  const targetUsername = document.getElementById("targetUsername").value;
+  const newUsername = document.getElementById("newUsername").value;
+  fetch(`${API}/users/${targetUsername}`,{
+    method:"PUT",
+    headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+    body: JSON.stringify({newUsername})
+  }).then(res=>res.json())
+    .then(data=>{alert(data.message); fetchUsers();});
+}
+
+function deleteUser(){
+  const targetUsername = document.getElementById("targetUsername").value;
+  fetch(`${API}/users/${targetUsername}`,{
+    method:"DELETE",
+    headers:{"Authorization":`Bearer ${token}`}
+  }).then(res=>res.json())
+    .then(data=>{alert(data.message); fetchUsers();});
+}
+
+fetchUsers();
+</script>
+</body>
+</html>
