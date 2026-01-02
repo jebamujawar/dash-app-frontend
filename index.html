@@ -1,7 +1,26 @@
-<script>
-const API = "https://dash-app-backend.onrender.com"; // Replace with your Render backend URL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login / Signup</title>
+</head>
+<body>
+<h1>Login / Signup</h1>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
 
-function signup() {
+<script>
+const API = "https://usere-app-back-day18.onrender.com"; // replace with your deployed backend
+
+if(!username || !password){
+  alert("Please fill all fields");
+  return;
+}
+
+function signup(){
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
   fetch(`${API}/signup`,{
@@ -13,21 +32,30 @@ function signup() {
     .catch(err=>console.error(err));
 }
 
-function login() {
+
+if(!username || !password){
+  alert("Please fill all fields");
+  return;
+}
+
+function login(){
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
   fetch(`${API}/login`,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({username,password})
-  }).then(res=>res.json())
-    .then(data=>{
-      if(data.token){
-        localStorage.setItem("token", data.token);
-        window.location.href="dashboard.html";
-      } else {
-        alert(data.message);
-      }
-    }).catch(err=>console.error(err));
+  }).then(res => res.json())
+.then(data => {
+  if(data.token){
+    localStorage.setItem("token", data.token);
+    window.location.href = "dashboard.html";
+  } else {
+    alert(data.message || "Login failed");
+  }
+});
+
 }
 </script>
+</body>
+</html>

@@ -19,7 +19,7 @@
 <button onclick="deleteUser()">Delete</button>
 
 <script>
-const API = "https://dash-app-backend.onrender.com"; // replace with your deployed backend
+const API = "https://usere-app-back-day18.onrender.com"; // replace with your deployed backend
 const token = localStorage.getItem("token");
 if(!token) window.location.href="login_signup.html";
 
@@ -29,38 +29,57 @@ function logout(){
 }
 
 function fetchUsers(){
-  fetch(`${API}/users`,{headers:{Authorization:`Bearer ${token}`}})
-    .then(res=>res.json())
-    .then(data=>{
-      const ul = document.getElementById("usersList");
-      ul.innerHTML="";
-      data.forEach(u=>{
-        const li = document.createElement("li");
-        li.textContent = u.username;
-        ul.appendChild(li);
-      });
-    });
+  fetch(`${API}/users`, { headers: { Authorization: `Bearer ${token}` } })
+  .then(res=>{
+    if(!res.ok) throw new Error("Failed to fetch users");
+    return res.json();
+  })
+  .then(data=>{
+    // render users
+  })
+  .catch(err=>{
+    alert(err.message);
+    if(err.message.includes("401")) logout();
+  });
+
 }
 
 function updateUser(){
-  const targetUsername = document.getElementById("targetUsername").value;
-  const newUsername = document.getElementById("newUsername").value;
+  const targetUsername = document.getElementById("targetUsername").value.trim();
+  const newUsername = document.getElementById("newUsername").value.trim();
+  if(!targetUsername || !newUsername){
+    alert("Please fill both fields for update");
+    return;
+  }
   fetch(`${API}/users/${targetUsername}`,{
     method:"PUT",
     headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},
     body: JSON.stringify({newUsername})
-  }).then(res=>res.json())
-    .then(data=>{alert(data.message); fetchUsers();});
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    alert(data.message);
+    fetchUsers();
+  });
 }
 
 function deleteUser(){
-  const targetUsername = document.getElementById("targetUsername").value;
+  const targetUsername = document.getElementById("targetUsername").value.trim();
+  if(!targetUsername){
+    alert("Please enter a username to delete");
+    return;
+  }
   fetch(`${API}/users/${targetUsername}`,{
     method:"DELETE",
     headers:{"Authorization":`Bearer ${token}`}
-  }).then(res=>res.json())
-    .then(data=>{alert(data.message); fetchUsers();});
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    alert(data.message);
+    fetchUsers();
+  });
 }
+
 
 fetchUsers();
 </script>
